@@ -1,0 +1,93 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wisdom-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-19",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true
+  },
+
+  "triggers": {
+    "crons": ["0 0 * * *"]
+  },
+
+  "vars": {
+    "ENVIRONMENT": "dev",
+    "PIXABAY_QUERY": "nature",
+    "ALLOWED_ORIGINS": "",
+    "WORKER_HOSTNAME": "localhost:8787"
+  },
+
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "wisdom-images-dev"
+    }
+  ],
+
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ],
+
+  "env": {
+    "staging": {
+      "name": "wisdom-api-staging",
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "PIXABAY_QUERY": "nature",
+        "ALLOWED_ORIGINS": "",
+        "WORKER_HOSTNAME": "wisdom-api-staging.<account>.workers.dev"
+      },
+      "r2_buckets": [
+        {
+          "binding": "IMAGES",
+          "bucket_name": "wisdom-images-staging"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "RATE_LIMITER",
+          "namespace_id": "2",
+          "simple": {
+            "limit": 60,
+            "period": 60
+          }
+        }
+      ]
+    },
+    "production": {
+      "name": "wisdom-api",
+      "vars": {
+        "ENVIRONMENT": "prod",
+        "PIXABAY_QUERY": "nature",
+        "ALLOWED_ORIGINS": "",
+        "WORKER_HOSTNAME": "wisdom-api.<account>.workers.dev"
+      },
+      "r2_buckets": [
+        {
+          "binding": "IMAGES",
+          "bucket_name": "wisdom-images-prod"
+        }
+      ],
+      "ratelimits": [
+        {
+          "name": "RATE_LIMITER",
+          "namespace_id": "3",
+          "simple": {
+            "limit": 60,
+            "period": 60
+          }
+        }
+      ]
+    }
+  }
+}
