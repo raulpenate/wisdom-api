@@ -10,11 +10,11 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-00C9A7?style=flat-square" alt="MIT License" /></a>
-  <img src="https://img.shields.io/badge/runtime-Cloudflare%20Workers-0A3530?style=flat-square" alt="Cloudflare Workers" />
-  <img src="https://img.shields.io/badge/framework-Hono-0A3530?style=flat-square" alt="Hono" />
-  <img src="https://img.shields.io/badge/storage-R2-0A3530?style=flat-square" alt="R2" />
-  <img src="https://img.shields.io/badge/built%20with-TypeScript-0A3530?style=flat-square" alt="TypeScript" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-D4AF37?style=flat-square" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/runtime-Cloudflare%20Workers-D4AF37?style=flat-square" alt="Cloudflare Workers" />
+  <img src="https://img.shields.io/badge/framework-Hono-D4AF37?style=flat-square" alt="Hono" />
+  <img src="https://img.shields.io/badge/storage-R2-D4AF37?style=flat-square" alt="R2" />
+  <img src="https://img.shields.io/badge/built%20with-TypeScript-D4AF37?style=flat-square" alt="TypeScript" />
 </p>
 
 ---
