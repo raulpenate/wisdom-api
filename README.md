@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ravnhq/wisdom/main/public/logo.png" alt="Wisdom API" width="96" />
+  <img src="public/logo.png" alt="Wisdom API" width="96" />
 </p>
 
 <h1 align="center">Wisdom API</h1>
