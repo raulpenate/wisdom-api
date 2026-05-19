@@ -1,0 +1,32 @@
+---
+description: Agent OS — standards and commands available for this project
+alwaysApply: true
+---
+
+# Agent OS
+
+This project uses Agent OS for structured AI workflows.
+
+## Standards
+
+Project standards live in `agent-os/standards/`. The index is at `agent-os/standards/index.yml`.
+
+Always read relevant standards before implementing features. Use `/agent-os/inject-standards` to identify which apply.
+
+## Commands
+
+These slash commands are available under `.cursor/commands/agent-os/`:
+
+| Command | Purpose |
+|---|---|
+| `/agent-os/discover-standards` | Extract tribal knowledge from the codebase into documented standards |
+| `/agent-os/index-standards` | Rebuild and maintain `agent-os/standards/index.yml` |
+| `/agent-os/inject-standards` | Identify and inject relevant standards into the current task context |
+| `/agent-os/plan-product` | Generate `agent-os/product/` docs (mission, roadmap, tech stack) |
+| `/agent-os/shape-spec` | Shape a feature and produce a spec in `agent-os/specs/` (run in plan mode) |
+
+## Key Paths
+
+- Standards: `agent-os/standards/`
+- Specs: `agent-os/specs/`
+- Product docs: `agent-os/product/`
