@@ -1,2 +1,22 @@
 # Agent OS Standards Index
-
+standards:
+  - path: global/typescript
+    description: TypeScript conventions — strict compiler, no any, discriminated unions, branded types, errors as values
+  - path: global/naming
+    description: Naming for files, identifiers, booleans, tests; acronym handling
+  - path: global/code-structure
+    description: Folder layout, layered architecture, dependency direction, public surface, DRY thresholds
+  - path: global/testing
+    description: Vitest + workers pool, test pyramid, mocking policy, AAA structure, coverage signals
+  - path: global/dependencies
+    description: When to add a dep, banned/allowed packages, bundle-size budget, lockfile policy
+  - path: api/response-format
+    description: Binary vs JSON envelopes, required headers, HTTP status mapping, streaming
+  - path: api/error-handling
+    description: Result type, AppError taxonomy, throw policy, HTTP mapping, client-safe messages, retries
+  - path: api/security
+    description: Secret handling, input validation, per-IP rate limiting, CORS, security headers, layered defense
+  - path: api/observability
+    description: Structured JSON logging, requestId propagation, log levels, what never to log
+  - path: workers/bindings
+    description: Typing Env, passing bindings explicitly, secrets loading, cron handler shape, multi-env config
