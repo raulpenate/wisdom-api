@@ -6,11 +6,14 @@
   "compatibility_flags": ["nodejs_compat"],
 
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "logs": {
+      "invocation_logs": false
+    }
   },
 
   "triggers": {
-    "crons": ["0 0 * * *"]
+    "crons": ["*/15 * * * *"]
   },
 
   "vars": {
@@ -45,7 +48,7 @@
         "ENVIRONMENT": "staging",
         "PIXABAY_QUERY": "nature",
         "ALLOWED_ORIGINS": "",
-        "WORKER_HOSTNAME": "wisdom-api-staging.<account>.workers.dev"
+        "WORKER_HOSTNAME": "wisdom-api-staging.raul-h-penate.workers.dev"
       },
       "r2_buckets": [
         {
@@ -70,7 +73,7 @@
         "ENVIRONMENT": "prod",
         "PIXABAY_QUERY": "nature",
         "ALLOWED_ORIGINS": "",
-        "WORKER_HOSTNAME": "wisdom-api.<account>.workers.dev"
+        "WORKER_HOSTNAME": "wisdom-api.raul-h-penate.workers.dev"
       },
       "r2_buckets": [
         {

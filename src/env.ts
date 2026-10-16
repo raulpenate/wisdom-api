@@ -8,6 +8,7 @@ export interface Env {
   readonly ALLOWED_ORIGINS: string;
   readonly ENVIRONMENT: "dev" | "staging" | "prod";
   readonly WORKER_HOSTNAME: string;
+  readonly SENTRY_DSN?: string;
 }
 
 const r2BucketLike = z.custom<R2Bucket>(
@@ -28,6 +29,7 @@ const EnvSchema = z.object({
   ALLOWED_ORIGINS: z.string(),
   ENVIRONMENT: z.enum(["dev", "staging", "prod"]),
   WORKER_HOSTNAME: z.string().min(1),
+  SENTRY_DSN: z.url().optional(),
 });
 
 export function loadEnv(raw: unknown): Env {

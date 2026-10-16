@@ -6,7 +6,7 @@
 
 <p align="center">
   A tiny Cloudflare Worker that serves a daily Pixabay image to the<br />
-  <a href="https://github.com/ravnhq/wisdom">Wisdom</a> browser extension — cached in R2, refreshed every 24 hours, hardened against abuse.
+  <a href="https://github.com/ravnhq/wisdom">Wisdom</a> browser extension — one color-matched photo per palette per day, cached in R2, hardened against abuse.
 </p>
 
 <p align="center">
@@ -19,13 +19,21 @@
 
 ---
 
-Every time Wisdom opens a new tab, it asks this API for the day's wallpaper. The API holds a single image in R2 for 24 hours, then a scheduled Worker fetches a fresh one from Pixabay. The Pixabay API key never leaves the Worker, the image is streamed straight from R2 to the browser, and per-IP rate limiting keeps the endpoint cheap under load.
+Every time Wisdom opens a new tab, it asks this API for the day's wallpaper. The API keeps one color-matched photo per palette for yesterday, today and tomorrow in R2, so every timezone gets a new photo at its own midnight. A cron every 15 minutes fills missing days from Pixabay and deletes old ones. The Pixabay API key never leaves the Worker, the image is streamed straight from R2 to the browser, and per-IP rate limiting keeps the endpoint cheap under load.
+
+## Architecture
+
+How the Worker, R2, the cron, and the extension fit together, with the security and cost model: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+![Wisdom architecture](docs/architecture.svg)
 
 ## Endpoints
 
-- **`GET /image`** — streamed bytes of the current day's image, with ETag and `Cache-Control`.
-- **`GET /image/metadata`** — JSON envelope with the image URL, credit, license, and cache age.
+- **`GET /image?palette=<id>&day=<YYYY-MM-DD>`** — that day's photo for the palette, streamed from R2 with ETag.
+- **`GET /image/metadata?palette=<id>&day=<YYYY-MM-DD>`** — credit, author and Pixabay links for the same photo.
 - **`GET /health`** — cheap liveness probe, rate-limit-exempt.
+
+`palette` is one of `teal`, `blue`, `purple`, `pink`, `red`, `orange`, `yellow`, `green` or `graphite` (default `teal`). `day` is the caller's local date and must be yesterday, today or tomorrow in UTC (default today). Anything else returns 400. Exact days are cached as immutable; fallbacks for a missing day are cached for 5 minutes.
 
 ## Getting started
 
@@ -40,7 +48,7 @@ In another terminal:
 ```bash
 curl -s http://127.0.0.1:8787/health | jq .
 curl -sI http://127.0.0.1:8787/image
-curl -s http://127.0.0.1:8787/image/metadata | jq .
+curl -s "http://127.0.0.1:8787/image/metadata?palette=blue" | jq .
 ```
 
 ## Building
@@ -55,15 +63,25 @@ pnpm test        # vitest run, against workerd via @cloudflare/vitest-pool-worke
 
 ```bash
 pnpm wrangler r2 bucket create wisdom-images-prod
-pnpm wrangler secret put PIXABAY_API_KEY
+pnpm wrangler secret put PIXABAY_API_KEY --env production
 pnpm deploy --env production
 ```
 
-The scheduled trigger (`0 0 * * *` UTC) refreshes the cached image once a day. To trigger a refresh manually in development:
+The cron (`*/15 * * * *`) fills any missing photo for today and tomorrow, so a fresh deploy is fully stocked within 15 minutes. To trigger it in development:
 
 ```bash
-curl -X POST "http://127.0.0.1:8787/__scheduled?cron=0+0+*+*+*"
+curl -X POST "http://127.0.0.1:8787/__scheduled?cron=*/15+*+*+*+*"
 ```
+
+## Monitoring
+
+Errors and the nightly refresh report to Sentry once a DSN is set. Without it, Sentry stays off.
+
+```sh
+pnpm exec wrangler secret put SENTRY_DSN --env production
+```
+
+The cron reports to the `daily-wallpapers` monitor, so a missed or failed run alerts. Reports never include IP addresses, headers, cookies, query strings, or bodies. Cloudflare invocation logs are off for the same reason, and our own structured logs carry only request IDs.
 
 ## Tech
 

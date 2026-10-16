@@ -5,12 +5,16 @@ import { rateLimitMiddleware } from "../middleware/rate-limit";
 import { getDailyImageMetadata } from "../services/image-service";
 import { CLIENT_MESSAGE, toHttpStatus } from "../types/app-error";
 import type { AppEnv } from "../types/hono-env";
+import { cacheControlFor, readDailyRequest } from "./daily-request";
 
 const imageMetadata = new Hono<AppEnv>();
 
 imageMetadata.get("/image/metadata", rateLimitMiddleware, async (c) => {
   const requestId = c.get("requestId");
-  const result = await getDailyImageMetadata(c.env);
+  const request = readDailyRequest(c);
+  if (request instanceof Response) return request;
+
+  const result = await getDailyImageMetadata(c.env, request.day, request.palette, request.now);
 
   if (!result.ok) {
     log({
@@ -33,7 +37,8 @@ imageMetadata.get("/image/metadata", rateLimitMiddleware, async (c) => {
   }
 
   log({ level: "info", msg: "metadata_served", requestId });
-  return c.json({ ok: true, data: result.value });
+  c.header("Cache-Control", cacheControlFor(request, result.value.exact));
+  return c.json({ ok: true, data: result.value.value });
 });
 
 export { imageMetadata };
