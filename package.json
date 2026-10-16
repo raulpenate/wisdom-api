@@ -19,21 +19,27 @@
   },
   "dependencies": {
     "@sentry/cloudflare": "^11.8.0",
-    "hono": "^4.12.19",
+    "hono": "^4.13.13",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
-    "@cloudflare/vitest-pool-workers": "^0.16.6",
-    "@cloudflare/workers-types": "^4.20260519.1",
+    "@cloudflare/vitest-pool-workers": "^0.23.0",
+    "@cloudflare/workers-types": "^5.20261016.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.6",
-    "wrangler": "^4.92.0"
+    "vite": "^8.3.4",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.151.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "workerd",
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "sharp": "^0.35.5",
+      "undici": "^7.29.1",
+      "vite": "^8.0.16"
+    }
   }
 }
