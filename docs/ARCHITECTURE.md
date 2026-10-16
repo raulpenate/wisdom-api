@@ -49,5 +49,5 @@ Two repos. [`ravnhq/wisdom`](https://github.com/ravnhq/wisdom) is the Chrome ext
 
 ## Release
 
-- **API.** `pnpm deploy --env production`, with secrets `PIXABAY_API_KEY` and an optional `SENTRY_DSN`.
+- **API.** `pnpm run deploy --env production`, with secrets `PIXABAY_API_KEY` and an optional `SENTRY_DSN`.
 - **Extension.** Bump `package.json`, delete any local `.env`, run `pnpm zip`, and upload `.output/*-chrome.zip`, or push a tag to run `release.yml`.

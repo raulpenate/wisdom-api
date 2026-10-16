@@ -64,7 +64,7 @@ pnpm test        # vitest run, against workerd via @cloudflare/vitest-pool-worke
 ```bash
 pnpm wrangler r2 bucket create wisdom-images-prod
 pnpm wrangler secret put PIXABAY_API_KEY --env production
-pnpm deploy --env production
+pnpm run deploy --env production
 ```
 
 The cron (`*/15 * * * *`) fills any missing photo for today and tomorrow, so a fresh deploy is fully stocked within 15 minutes. To trigger it in development:
