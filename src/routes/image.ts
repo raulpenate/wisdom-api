@@ -5,12 +5,16 @@ import { rateLimitMiddleware } from "../middleware/rate-limit";
 import { getDailyImage } from "../services/image-service";
 import { CLIENT_MESSAGE, toHttpStatus } from "../types/app-error";
 import type { AppEnv } from "../types/hono-env";
+import { cacheControlFor, readDailyRequest } from "./daily-request";
 
 const image = new Hono<AppEnv>();
 
 image.get("/image", rateLimitMiddleware, async (c) => {
   const requestId = c.get("requestId");
-  const result = await getDailyImage(c.env);
+  const request = readDailyRequest(c);
+  if (request instanceof Response) return request;
+
+  const result = await getDailyImage(c.env, request.day, request.palette, request.now);
 
   if (!result.ok) {
     log({
@@ -32,7 +36,7 @@ image.get("/image", rateLimitMiddleware, async (c) => {
     );
   }
 
-  const { body, etag, size, contentType, metadata } = result.value;
+  const { body, etag, size, contentType, metadata } = result.value.value;
 
   const ifNoneMatch = c.req.header("if-none-match");
   if (ifNoneMatch && ifNoneMatch === etag) {
@@ -48,7 +52,7 @@ image.get("/image", rateLimitMiddleware, async (c) => {
       "Content-Type": contentType,
       "Content-Length": String(size),
       ETag: etag,
-      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+      "Cache-Control": cacheControlFor(request, result.value.exact),
       "X-Image-Source": "pixabay",
       "X-Cached-At": metadata.fetchedAt,
     },

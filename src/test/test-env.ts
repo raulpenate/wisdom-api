@@ -23,10 +23,14 @@ export function makeTestEnv(overrides: Partial<Env> = {}): Env {
 export function makeMetadata(overrides: Partial<ImageMetadata> = {}): ImageMetadata {
   return {
     id: "pixabay-123",
+    day: "2026-05-19",
     title: "nature, sky",
     url: "https://localhost:8787/image",
     alt: "nature, sky",
     credit: "Photo by alice on Pixabay",
+    author: "alice",
+    authorUrl: "https://pixabay.com/users/alice-7/",
+    pageUrl: "https://pixabay.com/photos/nature-sky-123/",
     license: "Pixabay Content License",
     fetchedAt: "2026-05-19T00:00:00.000Z",
     expiresAt: "2026-05-20T00:00:00.000Z",

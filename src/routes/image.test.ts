@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
 import { putImage } from "../repositories/image-repository";
 import { clearImages, makeMetadata, makeTestEnv, stubRateLimiter } from "../test/test-env";
+import { utcDay } from "../types/day";
+
+const NOW = new Date();
+const TODAY = utcDay(NOW);
 
 const IMAGE_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]).buffer as ArrayBuffer;
 const env = makeTestEnv();
@@ -12,7 +16,7 @@ beforeEach(async () => {
 describe("GET /image", () => {
   it("streams image bytes with required headers when an image is cached", async () => {
     const metadata = makeMetadata();
-    await putImage(env, IMAGE_BYTES, metadata, "image/jpeg");
+    await putImage(env, TODAY, "teal", IMAGE_BYTES, metadata, "image/jpeg");
 
     const app = createApp();
     const res = await app.request("/image", {}, env);
@@ -28,8 +32,15 @@ describe("GET /image", () => {
     expect(bytes.byteLength).toBe(IMAGE_BYTES.byteLength);
   });
 
+  it("returns 400 for an unknown palette", async () => {
+    const app = createApp();
+    const res = await app.request("/image?palette=__proto__", {}, env);
+
+    expect(res.status).toBe(400);
+  });
+
   it("returns 304 when If-None-Match matches the stored ETag", async () => {
-    await putImage(env, IMAGE_BYTES, makeMetadata(), "image/jpeg");
+    await putImage(env, TODAY, "teal", IMAGE_BYTES, makeMetadata(), "image/jpeg");
 
     const app = createApp();
     const firstRes = await app.request("/image", {}, env);

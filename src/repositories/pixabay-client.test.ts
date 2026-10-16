@@ -5,7 +5,9 @@ const HIT = {
   id: 1,
   tags: "nature, sky",
   largeImageURL: "https://cdn.pixabay.com/a.jpg",
+  pageURL: "https://pixabay.com/photos/sky-1/",
   user: "alice",
+  user_id: 7,
 };
 
 describe("searchPixabay", () => {
@@ -13,13 +15,32 @@ describe("searchPixabay", () => {
     const fetcher = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ hits: [HIT] }), { status: 200 }));
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
     expect(result).toEqual({ ok: true, value: [HIT] });
+  });
+
+  it("identifies itself, since Pixabay throttles requests without a User-Agent", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ hits: [HIT] }), { status: 200 }));
+    await searchPixabay("key", "nature", "lilac", fetcher);
+    const init = fetcher.mock.calls[0]?.[1] as RequestInit;
+    expect(new Headers(init.headers).get("user-agent")).toMatch(/^wisdom-api\//);
+  });
+
+  it("filters the search by the requested color", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ hits: [HIT] }), { status: 200 }));
+    await searchPixabay("key", "nature", "lilac", fetcher);
+    const url = new URL(fetcher.mock.calls[0]?.[0] as string);
+    expect(url.searchParams.get("colors")).toBe("lilac");
+    expect(url.searchParams.get("q")).toBe("nature");
   });
 
   it("returns UPSTREAM_FAILURE on 4xx response", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("Forbidden", { status: 403 }));
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
     expect(result).toEqual({
       ok: false,
       error: { code: "UPSTREAM_FAILURE", upstream: "pixabay", statusCode: 403 },
@@ -30,7 +51,7 @@ describe("searchPixabay", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     const fetcher = vi.fn().mockResolvedValue(new Response("", { status: 503 }));
 
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_FAILURE");
@@ -40,7 +61,7 @@ describe("searchPixabay", () => {
 
   it("returns UPSTREAM_FAILURE on malformed JSON response", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("not-json", { status: 200 }));
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
     expect(result).toEqual({ ok: false, error: { code: "UPSTREAM_FAILURE", upstream: "pixabay" } });
   });
 
@@ -48,14 +69,14 @@ describe("searchPixabay", () => {
     const fetcher = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ hits: [] }), { status: 200 }));
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
     expect(result).toEqual({ ok: false, error: { code: "UPSTREAM_FAILURE", upstream: "pixabay" } });
   });
 
   it("returns UPSTREAM_FAILURE when fetch throws a network error", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     const fetcher = vi.fn().mockRejectedValue(new Error("network error"));
-    const result = await searchPixabay("key", "nature", fetcher);
+    const result = await searchPixabay("key", "nature", "turquoise", fetcher);
     expect(result.ok).toBe(false);
     vi.restoreAllMocks();
   });
@@ -87,5 +108,18 @@ describe("downloadImage", () => {
     const fetcher = vi.fn().mockRejectedValue(new Error("timeout"));
     const result = await downloadImage("https://cdn.pixabay.com/x.jpg", fetcher);
     expect(result.ok).toBe(false);
+  });
+
+  it("retries when the image CDN rate-limits the download", async () => {
+    const bytes = new Uint8Array([1, 2, 3]).buffer as ArrayBuffer;
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("", { status: 429 }))
+      .mockResolvedValueOnce(
+        new Response(bytes, { status: 200, headers: { "content-type": "image/jpeg" } }),
+      );
+    const result = await downloadImage("https://cdn.pixabay.com/x.jpg", fetcher);
+    expect(result.ok).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
   });
 });

@@ -10,6 +10,7 @@ export const errorHandler: ErrorHandler<AppEnv> = (err: Error, c: Context<AppEnv
     level: "error",
     msg: "unhandled_error",
     requestId,
+    error: err,
     data: {
       errorName: err.name,
       errorMessage: err.message,
