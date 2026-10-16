@@ -1,4 +1,5 @@
 import type { Env } from "../env";
+import { log } from "../lib/log";
 import type { Result } from "../lib/result";
 import { err, ok } from "../lib/result";
 import type { AppError } from "../types/app-error";
@@ -18,8 +19,10 @@ export function rateLimitKey(ip: string): string {
 }
 
 export async function checkRateLimit(env: Env, ip: string): Promise<Result<void, AppError>> {
-  const { success } = await env.RATE_LIMITER.limit({ key: rateLimitKey(ip) });
+  const key = rateLimitKey(ip);
+  const { success } = await env.RATE_LIMITER.limit({ key });
   if (!success) {
+    log({ level: "info", msg: "rate_limited", requestId: "-" });
     return err({ code: "RATE_LIMITED", retryAfterSeconds: 60 });
   }
   return ok(undefined);
