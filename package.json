@@ -18,18 +18,18 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@sentry/cloudflare": "^11.8.0",
-    "hono": "^4.13.13",
-    "zod": "^4.4.3"
+    "@sentry/cloudflare": "^11.9.0",
+    "hono": "^4.13.14",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.15",
+    "@biomejs/biome": "^2.6.3",
     "@cloudflare/vitest-pool-workers": "^0.23.0",
-    "@cloudflare/workers-types": "^5.20261016.1",
+    "@cloudflare/workers-types": "^5.20261026.1",
     "typescript": "^6.0.3",
-    "vite": "^8.3.4",
+    "vite": "^8.3.5",
     "vitest": "^4.1.12",
-    "wrangler": "^4.151.1"
+    "wrangler": "^4.153.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
